@@ -1,14 +1,24 @@
 # 水上LED演出システム インフラ提案
 
-レビュー用に切り出した独立資料です。`ai-workspace` 内の調査経緯を踏まえつつ、共有時に読む範囲を次の3資料へ絞っています。
-
-1. [自宅Kubernetes案](docs/01-home-kubernetes.md)
-2. [クラウド完結案](docs/02-cloud-complete.md)
-3. [比較・認証・基礎インフラ](docs/03-comparison-and-basics.md)
+レビュー用に切り出した独立資料です。レビュー時はIssueだけを読み、詳細を確認したい場合だけ文脈別のnoteを参照します。
 
 ## レビューの入口
 
-GitHubへ公開した後は、Issueをレビューの入口にします。Issue本文の下書きは[こちら](issues/001-review.md)です。Issueでは採用案、認証方式、DNS、Nginx、実装前検証の判断だけを行い、構成の細部はこのrepoのMarkdownを参照します。
+GitHubへ公開した後は、[Issue #1本文の下書き](issues/001-review.md)をそのままレビューの入口にします。Issue本文には共通前提、2案のMermaid、リソース比較、メリット・デメリット、認証方式、Route 53、Nginx、レビュー項目を含めます。Issueだけで案の比較と判断が完結し、noteは補足資料です。
+
+## 詳細note
+
+noteは案ごとに分けず、読みたい論点ごとに分けています。
+
+- [背景・スコープ](notes/00-background-and-scope.md)
+- [論理アーキテクチャ](notes/01-logical-architecture.md)
+- [実行基盤・リソース](notes/02-platform-and-resources.md)
+- [公開入口・静的Web・DNS](notes/03-public-entry-and-static-web.md)
+- [認証方式](notes/04-authentication.md)
+- [状態・秘密情報・監視](notes/05-state-secrets-observability.md)
+- [実装前検証](notes/06-validation.md)
+
+案ごとの詳細資料は、旧来の検討内容を残すために[docs/](docs/)にも置いています。レビューで最初に読む資料ではありません。
 
 ## ここまでの経緯
 

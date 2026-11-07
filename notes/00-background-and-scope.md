@@ -2,7 +2,7 @@
 
 ## 背景
 
-約20台の水上LED機器を、管理画面や観客画面から操作する。会場ではBluetooth SIG Meshを使う予定だが、クラウドと無線メッシュの間にはVenue Gatewayを置く。
+約20台の水上LED機器を、管理画面や観客画面から操作する。会場ではBluetooth SIG Meshを使う予定だが、クラウドと無線メッシュの間にはGatewayを置く。
 
 検討当初は、自宅Kubernetes、EC2、ECS、IoT Core、Lambda、RDB、DynamoDB KVSを個別に比較していた。レビュー対象が増えすぎるため、最終提案は自宅Kubernetes基盤とAWSクラウド完結の2案へ絞った。
 
@@ -15,7 +15,7 @@ flowchart LR
   client["管理画面 / 観客画面"]
   control["Control Server"]
   channel["Device Channel"]
-  gateway["Venue Gateway"]
+  gateway["Gateway"]
   mesh["Bluetooth SIG Mesh"]
   nodes["LED Nodes"]
 
@@ -31,8 +31,8 @@ flowchart LR
 | 用語 | 意味 |
 |---|---|
 | Control Server | API、認証、権限、演出状態を扱うクラウドまたはKubernetes上のアプリ |
-| Device Channel | Control ServerとVenue Gatewayの論理通信層 |
-| Venue Gateway | クラウド接続とBluetooth SIG Meshを橋渡しする会場側機器 |
+| Device Channel | Control ServerとGatewayの論理通信層 |
+| Gateway | クラウド接続とBluetooth SIG Meshを橋渡しする会場側機器 |
 | RDB | 演出、命令、履歴、利用者対応表を保存するリレーショナルデータベース |
 
 ## 決めないこと

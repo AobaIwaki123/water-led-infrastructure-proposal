@@ -23,7 +23,7 @@ flowchart LR
     acm["ACM certificate"]
   end
 
-  gateway["Venue Gateway"]
+  gateway["Gateway"]
   mesh["Bluetooth SIG Mesh"]
   leds["LED Nodes 約20台"]
 

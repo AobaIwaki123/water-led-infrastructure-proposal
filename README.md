@@ -30,7 +30,7 @@ noteは案ごとに分けず、読みたい論点ごとに分けています。
 
 ## 共通前提
 
-- 現地にクラウドとBluetooth SIG Meshを橋渡しするVenue Gatewayを置く。
+- 現地にクラウドとBluetooth SIG Meshを橋渡しするGatewayを置く。
 - Web ClientはLED機器へ直接接続せず、Control ServerとDevice Channelを経由する。
 - ゲートウェイとクラウドの通信方式はTLS付きのHTTPSまたはWebSocketを候補とし、会場側から外向きに接続する。
 - 演出の細かな実行は、通信断に備えて会場側で継続できる構成を候補とする。

@@ -9,9 +9,9 @@
 ## 共通前提
 
 - 水上LED機器は約20台。
-- 会場に、クラウドとBluetooth SIG Meshを橋渡しするVenue Gatewayを置く。
+- 会場に、クラウドとBluetooth SIG Meshを橋渡しするGatewayを置く。
 - Web ClientはLED機器へ直接接続せず、Control ServerとDevice Channelを経由する。
-- Venue Gatewayはクラウドへ外向きにTLS接続する。クラウドから会場へ直接着信させない。
+- Gatewayはクラウドへ外向きにTLS接続する。クラウドから会場へ直接着信させない。
 - 演出の細かな実行は会場側で行い、通信断時の継続可否は実装前検証で決める。
 - 機器型番、SIG Meshのモデル、命令フォーマット、遅延目標はこのIssueでは固定しない。
 
@@ -30,7 +30,7 @@ flowchart LR
     monitor["クラスタ監視"]
   end
   db[("マネージドRDB")]
-  gateway["Venue Gateway"]
+  gateway["Gateway"]
   mesh["Bluetooth SIG Mesh"]
   leds["LED Nodes 約20台"]
 
@@ -86,7 +86,7 @@ flowchart LR
     cw["CloudWatch"]
     acm["ACM certificate"]
   end
-  gateway["Venue Gateway"]
+  gateway["Gateway"]
   mesh["Bluetooth SIG Mesh"]
   leds["LED Nodes 約20台"]
 
@@ -146,7 +146,7 @@ flowchart LR
 |---|---|---|---|
 | 管理者 | Discord OAuth2/OIDCをControl Serverが直接利用 | Cognito + Discord OIDC、メールOTP、Passkey | 少人数なら直接Discordが最も簡単。複数IdP、MFA、Passkeyが必要ならCognito |
 | 観客 | イベント・会場限定の短期ゲストセッション | Discord、メールOTP | 観客にアカウント登録を要求しない。操作範囲とレート制限を設ける |
-| Venue Gateway | ゲートウェイ単位の資格情報または証明書 | AWS IoT Core | 人間の認証とは分ける |
+| Gateway | ゲートウェイ単位の資格情報または証明書 | AWS IoT Core | 人間の認証とは分ける |
 
 Discordを使う場合も、DiscordのGuild/Roleをそのままアプリケーション権限にしない。DiscordユーザーIDとアプリ内の管理者・演出担当権限を別に管理する。
 
@@ -191,7 +191,7 @@ Discordを使う場合も、DiscordのGuild/Roleをそのままアプリケー�
 
 - 採用する案、または段階的な採用順序が決まる。
 - Route 53を使わず、Nginxを追加しない判断が決まる。
-- 管理者・観客・Venue Gatewayの認証境界が決まる。
+- 管理者・観客・Gatewayの認証境界が決まる。
 - 未決定事項が、実装前検証と別の設計課題に分離される。
 
 ## 詳細note

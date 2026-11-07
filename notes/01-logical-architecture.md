@@ -17,7 +17,7 @@ flowchart LR
     state[("State Store")]
   end
   subgraph venue["会場エッジ層"]
-    gateway["Venue Gateway"]
+    gateway["Gateway"]
     scheduler["Local Scheduler"]
     mesh["Bluetooth SIG Mesh"]
   end
@@ -38,7 +38,7 @@ flowchart LR
 
 - Control Serverは利用者、会場、操作内容を検証する。
 - Device Channelはゲートウェイとの接続、接続状態、命令配送を扱う。
-- Venue Gatewayはクラウド側の命令を現地のSIG Meshへ変換する。
+- Gatewayはクラウド側の命令を現地のSIG Meshへ変換する。
 - Local Schedulerは、必要な演出を現地で継続する。
 - LED NodeはクラウドAPIを直接公開しない。
 

@@ -18,16 +18,15 @@ flowchart LR
 
 利用者からは通常のHTTPSサイトに見える。キャッシュヒット時はエッジから返り、キャッシュミス時にS3へ取りに行く。JavaScriptやCSSはハッシュ付きファイル名、`index.html`は短いキャッシュまたは再検証にする。
 
-## Route 53
+## DNSの判断
 
-Route 53はDNSサービスであり、CloudFrontやALBの必須部品ではない。
+今回の提案ではRoute 53を使わない。利用中のDNSサービスでサブドメインのCNAMEを管理し、CloudFrontまたはALBへ向ける。
 
 | 状況 | 判断 |
 |---|---|
-| サブドメインを使う | 既存DNSサービスのCNAMEで足りる |
-| ルートドメインをCloudFrontへ向ける | Route 53 Alias、またはDNS事業者のALIAS/ANAMEが便利 |
-| AWSへDNSを集約する | Route 53を使う |
-| 自宅Kubernetes案 | 現在のDNSサービスでIngressへ向け、Route 53は追加しない |
+| 自宅Kubernetes案 | 既存DNSサービスのCNAMEをIngressへ向ける |
+| AWSクラウド完結案 | 既存DNSサービスのCNAMEをCloudFrontまたはALBへ向ける |
+| 将来ルートドメインを使う | DNS事業者のALIAS/ANAMEが必要になった場合だけ再検討する |
 
 ## Nginx
 
@@ -44,5 +43,4 @@ Route 53はDNSサービスであり、CloudFrontやALBの必須部品ではな�
 
 - [CloudFrontの動作](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/HowCloudFrontWorks.html)
 - [S3 Origin Access Control](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html)
-- [Route 53 AliasとCNAMEの比較](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-choosing-alias-non-alias.html)
 - [CloudFrontのカスタムドメイン](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/CNAMEs.html)

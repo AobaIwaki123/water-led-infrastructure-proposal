@@ -56,7 +56,7 @@ flowchart LR
 | Web配信 | HTML、CSS、JavaScriptを配信 | 小規模ならKubernetes上でよい。CloudFrontは必須ではない |
 | マネージドRDB | 状態、命令、履歴を保存 | DBまで自宅に置かず、バックアップ・復旧を外部へ分離する案を基本とする |
 | Kubernetes Secret | DB接続情報、外部APIキーを保持 | Gitへ平文保存しない |
-| 既存DNSサービス | ドメインをIngressへ向ける | Route 53は必須ではない |
+| 既存DNSサービス | ドメインをIngressへ向ける | サブドメインのCNAMEを設定する。Route 53は使わない |
 | クラスタ監視 | API、接続、ノード状態を監視 | 実演時に外部からログを確認できるようにする |
 
 ### メリット・デメリット
@@ -72,7 +72,6 @@ flowchart LR
 ```mermaid
 flowchart LR
   users["管理画面 / 観客画面"]
-  route53["Route 53 任意"]
   subgraph aws["AWS"]
     cf["CloudFront"]
     s3[("S3 静的ファイル")]
@@ -91,8 +90,6 @@ flowchart LR
   mesh["Bluetooth SIG Mesh"]
   leds["LED Nodes 約20台"]
 
-  route53 -.->|"DNS"| cf
-  route53 -.->|"DNS"| alb
   users -->|"静的Web HTTPS"| cf
   cf -->|"OAC"| s3
   users -->|"API HTTPS"| alb
@@ -122,7 +119,7 @@ flowchart LR
 | ECR | コンテナイメージ保存 | CIからpushする |
 | CloudWatch | ログ、メトリクス、アラーム | APIエラー、Task停止、ゲートウェイ切断を監視する |
 | ACM | CloudFront / ALBのTLS | カスタムドメインを使う場合に利用 |
-| Route 53 | DNS | 任意。AWSへDNSを集約する場合に利用 |
+| 既存DNSサービス | DNS | サブドメインのCNAMEをCloudFrontまたはALBへ向ける。Route 53は使わない |
 
 ### メリット・デメリット
 
@@ -153,11 +150,11 @@ flowchart LR
 
 Discordを使う場合も、DiscordのGuild/Roleをそのままアプリケーション権限にしない。DiscordユーザーIDとアプリ内の管理者・演出担当権限を別に管理する。
 
-## Route 53とNginx
+## DNSとNginx
 
 | 項目 | レビュー時の提案 |
 |---|---|
-| Route 53 | 必須にしない。既存DNSでサブドメインのCNAMEや必要なA/AAAAを管理できればよい。ルートドメインをCloudFrontへAliasで向ける、AWSへDNSを集約する場合はRoute 53が便利 |
+| DNS | 既存DNSサービスでサブドメインのCNAMEを管理する。今回の提案ではRoute 53を使わない |
 | AWS案のNginx | 原則使わない。ALBが公開入口、ASP.NET Core/KestrelがアプリのHTTPサーバーを担当する |
 | 自宅Kubernetes案のNginx | 既存Ingress ControllerがNginxなら再利用する。アプリPod内へ別Nginxを追加しない |
 
@@ -168,14 +165,14 @@ Discordを使う場合も、DiscordのGuild/Roleをそのままアプリケー�
 - 従量課金では、月1TBのデータ転送、1,000万HTTP/HTTPSリクエスト、200万CloudFront Functions呼び出しが無料枠に含まれる。
 - 2026-11-07時点の日本向け従量課金は、無料枠後の次の9TBが0.114 USD/GB、HTTPSリクエストが0.012 USD/10,000リクエスト。最初の1,000 invalidation pathsは無料。
 - 定額プランもあるが、初期の小規模運用では従量課金を基本にし、WAF・ログ・DNSを含めた予算管理が必要になったら比較する。
-- S3、ECS、RDS、ALB、NAT Gateway、Route 53の料金は別に発生する。
+- S3、ECS、RDS、ALB、NAT Gateway、利用中DNSサービスの料金は別に発生する。
 
 ## レビューで決めること
 
 - 実演時の本番基盤として、自宅の電源・回線・ノード障害を許容するか。
 - 自宅Kubernetes案を採用する場合、既存Ingress、外部公開経路、DNS更新、監視を再利用できるか。
 - AWSクラウド完結案の常時稼働費用と運用負担を許容できるか。
-- Route 53を使う必要があるか。
+- 利用中のDNSサービスでサブドメインのCNAMEを管理できるか。
 - Nginxを追加する明確な理由があるか。
 - 管理者をDiscord利用者に限定してよいか。
 - 観客を短期ゲストセッションで扱ってよいか。
@@ -193,7 +190,7 @@ Discordを使う場合も、DiscordのGuild/Roleをそのままアプリケー�
 ## 完了条件
 
 - 採用する案、または段階的な採用順序が決まる。
-- Route 53とNginxを使うかどうかの判断が決まる。
+- Route 53を使わず、Nginxを追加しない判断が決まる。
 - 管理者・観客・Venue Gatewayの認証境界が決まる。
 - 未決定事項が、実装前検証と別の設計課題に分離される。
 
@@ -211,6 +208,5 @@ Discordを使う場合も、DiscordのGuild/Roleをそのままアプリケー�
 
 - [CloudFront pay-as-you-go pricing](https://aws.amazon.com/cloudfront/pricing/pay-as-you-go/)
 - [CloudFront flat-rate pricing plans](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/flat-rate-pricing-plan.html)
-- [Route 53 pricing](https://aws.amazon.com/route53/pricing/)
 - [Discord OAuth2](https://docs.discord.com/developers/topics/oauth2)
 - [Amazon Cognito User Pools](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools.html)

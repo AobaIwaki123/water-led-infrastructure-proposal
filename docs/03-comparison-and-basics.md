@@ -33,18 +33,17 @@
 - Cognito: 複数のログイン先、MFA、Passkey、組織向けSSO、複数アプリケーションでの共通認証が必要になった時点で再評価する。
 - Venue Gateway: 人間の認証とは分け、ゲートウェイ単位の資格情報または証明書で認証する。
 
-## 3. Route 53を使うか
+## 3. DNSの判断
 
-Route 53はAWSのDNSサービスです。CloudFrontやALBそのものではなく、ドメイン名を対象リソースへ向ける役割を持ちます。
+今回の提案ではRoute 53を使わない。利用中のDNSサービスでサブドメインのCNAMEを管理し、CloudFront、ALB、Ingressのいずれかへ向ける。
 
 | 判断 | 提案 |
 |---|---|
-| 使わなくてもよいケース | 既存のDNSサービスでサブドメインのCNAME、または必要なA/AAAAレコードを管理できる場合 |
-| 使うと便利なケース | AWS内でDNSを統一する、ルートドメインをCloudFrontへAliasで向ける、ヘルスチェックやルーティングポリシーを使う場合 |
-| CloudFrontのサブドメイン | `app.example.com`のようなサブドメインは外部DNSのCNAMEでもよい |
-| ルートドメイン | `example.com`は通常のCNAMEを置けないため、Route 53のAliasまたはDNS事業者のALIAS/ANAME機能が便利 |
+| 自宅Kubernetes案 | 既存DNSサービスのCNAMEをIngressへ向ける |
+| AWSクラウド完結案 | 既存DNSサービスのCNAMEをCloudFrontまたはALBへ向ける |
+| 将来ルートドメインを使う | DNS事業者のALIAS/ANAMEが必要になった場合だけ再検討する |
 
-初期提案ではRoute 53を必須にしません。既存DNSで足りるならそのまま使い、AWSへDNSを集約する必要が出たら追加します。Route 53は公開Hosted Zoneが最初の25個まで月額0.50 USD、標準DNSクエリが最初の10億クエリまで100万クエリあたり0.40 USDです。CloudFrontやALBへのAliasクエリは追加料金がかかりませんが、ドメイン登録やログ出力などは別料金です。
+Route 53は、ルートドメインのAlias、AWS内へのDNS集約、ヘルスチェックや高度なルーティングが必要になった場合だけ再評価する。
 
 ## 4. Nginxを使うか
 

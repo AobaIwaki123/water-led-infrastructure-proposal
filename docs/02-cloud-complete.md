@@ -7,8 +7,6 @@
 ```mermaid
 flowchart LR
   users["管理画面 / 観客画面"]
-  route53["Route 53 任意"]
-
   subgraph aws["AWS"]
     cf["CloudFront"]
     s3[("S3 静的ファイル"])
@@ -29,8 +27,6 @@ flowchart LR
   mesh["Bluetooth SIG Mesh"]
   leds["LED Nodes 約20台"]
 
-  route53 -.->|"DNS"| cf
-  route53 -.->|"DNS"| alb
   users -->|"静的Web HTTPS"| cf
   cf -->|"OAC"| s3
   users -->|"API HTTPS"| alb
@@ -64,7 +60,7 @@ flowchart LR
 | ECR | コンテナイメージ保存 | CIからpushし、ECSを更新する |
 | CloudWatch | ログ、メトリクス、アラーム | API 5xx、Task停止、ゲートウェイ切断、RDS状態を監視する |
 | ACM | CloudFront / ALBのTLS証明書 | カスタムドメインを使う場合に用いる |
-| Route 53 | DNS | 任意。AWS内でDNSも統一したい場合やルートドメインのAliasを使う場合に便利 |
+| 既存DNSサービス | DNS | サブドメインのCNAMEをCloudFrontまたはALBへ向ける。Route 53は使わない |
 
 ## メリット
 
@@ -78,12 +74,12 @@ flowchart LR
 - ECS、ALB、VPC、RDS、Secrets Manager、監視を理解・運用する必要がある。
 - Task、RDS、NAT Gateway等が常時稼働するため、自宅Kubernetesより固定費が発生しやすい。
 - Device Channelの再接続、ACK、重複排除はECSを選んでも自前で設計する必要がある。
-- CloudFront、Route 53、ACMを追加しても、APIや会場通信が自動的に改善するわけではない。
+- CloudFrontやACMを追加しても、APIや会場通信が自動的に改善するわけではない。
 
 ## CloudFrontの利用体験と料金の要点
 
 - 利用者は通常のHTTPSサイトとしてアクセスする。キャッシュヒット時は近いエッジから静的ファイルが返り、初回やキャッシュミス時だけS3へ取りに行く。
 - JavaScriptやCSSをハッシュ付きファイル名にし、`index.html`だけ短いキャッシュまたは再検証にすると、更新時の古い画面表示を抑えられる。
-- 従量課金では、月1TBのデータ転送、1,000万HTTP/HTTPSリクエスト、200万CloudFront Functions呼び出しが無料枠に含まれる。S3、ECS、RDS、ALB、Route 53などの料金は別である。
+- 従量課金では、月1TBのデータ転送、1,000万HTTP/HTTPSリクエスト、200万CloudFront Functions呼び出しが無料枠に含まれる。S3、ECS、RDS、ALB、利用中DNSサービスなどの料金は別である。
 - CloudFrontには従量課金に加えて、CloudFront・WAF・DNS・ログなどを月額でまとめる定額プランもある。小規模な初期運用では従量課金を基本とし、トラフィックやWAF要件が固まってから定額プランと比較する。
 - CloudFrontの料金は、利用量、配信地域、機能で決まる。静的な小規模WebではCloudFront単体の料金より、ECS・RDS・NAT Gatewayの常時稼働費用が支配的になりやすい。

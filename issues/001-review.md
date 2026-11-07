@@ -17,34 +17,20 @@
 
 ## 提案1: 自宅Kubernetes基盤
 
-```mermaid
-flowchart LR
-  users["管理画面 / 観客画面"]
-  dns["既存DNSサービス"]
-  subgraph home["自宅 Kubernetes"]
-    ingress["既存Ingress Controller"]
-    web["Web配信"]
-    app["Control Server"]
-    channel["Device Channel"]
-    secrets["Kubernetes Secret"]
-    monitor["クラスタ監視"]
-  end
-  db[("マネージドRDB")]
-  gateway["Gateway"]
-  mesh["Bluetooth SIG Mesh"]
-  leds["LED Nodes 約20台"]
+```text
+[利用者・管理者ブラウザ] -- HTTPS --> [既存Ingress Controller]
+                                          |-- 静的Web --> [Web配信]
+                                          +-- API ----> [Control Server]
 
-  dns -.->|"名前解決"| ingress
-  users -->|"HTTPS"| ingress
-  ingress -->|"静的Web"| web
-  ingress -->|"API"| app
-  app -->|"命令"| channel
-  channel <-->|"外向きTLS"| gateway
-  app -->|"SQL"| db
-  secrets -.->|"秘密情報"| app
-  app -.->|"ログ"| monitor
-  gateway -->|"Bluetooth SIG Mesh"| mesh
-  mesh <-->|"無線"| leds
+[既存DNSサービス] -- サブドメインCNAME --> [既存Ingress Controller]
+
+[Gateway] -- 外向きTLS --> [既存Ingress Controller] -- WebSocket --> [Device Channel]
+[Control Server] -- 命令 -------------------------------> [Device Channel]
+[Control Server] -- SQL -------------------------------> [マネージドRDB]
+[Kubernetes Secret] -- 秘密情報 -----------------------> [Control Server]
+[Control Server] -- ログ ------------------------------> [クラスタ監視]
+
+[Gateway] -- Bluetooth SIG Mesh --> [LED Nodes 約20台]
 ```
 
 ### リソースと要点
@@ -69,42 +55,23 @@ flowchart LR
 
 ## 提案2: AWSクラウド完結
 
-```mermaid
-flowchart LR
-  users["管理画面 / 観客画面"]
-  subgraph aws["AWS"]
-    cf["CloudFront"]
-    s3[("S3 静的ファイル")]
-    alb["Application Load Balancer"]
-    subgraph ecs["ECS on Fargate"]
-      app["Control Server container"]
-      channel["Device Channel container"]
-    end
-    db[("RDS for PostgreSQL")]
-    secret["Secrets Manager"]
-    ecr["Amazon ECR"]
-    cw["CloudWatch"]
-    acm["ACM certificate"]
-  end
-  gateway["Gateway"]
-  mesh["Bluetooth SIG Mesh"]
-  leds["LED Nodes 約20台"]
+```text
+[利用者・管理者ブラウザ] -- 静的Web HTTPS --> [CloudFront] --> [非公開S3]
+[利用者・管理者ブラウザ] -- API HTTPS ----> [ALB]
 
-  users -->|"静的Web HTTPS"| cf
-  cf -->|"OAC"| s3
-  users -->|"API HTTPS"| alb
-  alb -->|"HTTP"| app
-  gateway <-->|"外向きTLS WebSocket"| alb
-  alb -->|"WebSocket"| channel
-  app -->|"同一Task内通信"| channel
-  app -->|"SQL"| db
-  secret -.->|"秘密情報"| ecs
-  ecr -.->|"コンテナイメージ"| ecs
-  ecs -.->|"ログ / アラーム"| cw
-  acm -.->|"TLS"| cf
-  acm -.->|"TLS"| alb
-  gateway -->|"Bluetooth SIG Mesh"| mesh
-  mesh <-->|"無線"| leds
+[Gateway] -- 外向きTLS WebSocket --> [ALB] -- WebSocket --> [Device Channel]
+[ALB] -- HTTP --------------------> [Control Server]
+[Control Server] -- 同一ECS Task内通信 --> [Device Channel]
+[Control Server] -- SQL -------------> [RDS for PostgreSQL]
+
+[Secrets Manager] -- 秘密情報 -------> [ECS on Fargate]
+[Amazon ECR] ----- コンテナイメージ --> [ECS on Fargate]
+[ECS / ALB / RDS] -- ログ・監視 -----> [CloudWatch]
+[ACM] ------------ TLS -------------> [CloudFront / ALB]
+[既存DNSサービス] -- CNAME ---------> [CloudFront / ALB]
+
+[Device Channel] -- WebSocket経由の命令 --> [Gateway]
+[Gateway] -- Bluetooth SIG Mesh -----> [LED Nodes 約20台]
 ```
 
 ### リソースと要点

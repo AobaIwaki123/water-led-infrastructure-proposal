@@ -4,7 +4,7 @@
 
 ## レビューの入口
 
-GitHubへ公開した後は、[Issue #1本文の下書き](issues/001-review.md)をそのままレビューの入口にします。Issue本文には共通前提、2案のMermaid、リソース比較、メリット・デメリット、認証方式、Route 53、Nginx、レビュー項目を含めます。Issueだけで案の比較と判断が完結し、noteは補足資料です。
+レビューの入口は[GitHub Issue #1](https://github.com/AobaIwaki123/water-led-infrastructure-proposal/issues/1)です。Issue本文には共通前提、2案のMermaid、リソース比較、メリット・デメリット、認証方式、Route 53、Nginx、レビュー項目を含めます。Issueだけで案の比較と判断が完結し、noteは補足資料です。Issue本文のローカル下書きは[こちら](issues/001-review.md)です。
 
 ## 詳細note
 
